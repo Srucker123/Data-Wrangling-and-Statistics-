@@ -1,0 +1,96 @@
+---
+title: "Data Wrangling"
+author: "Sandra Rucker"
+date: "8/6/2019"
+output: html_document
+---
+Data Wrangling for the Capstone Project
+
+The initial data set contained the following data; 171 Post-Secondary Institutions in the State of Georgia 
+and 8 variables. Coding was performed using R.
+
+Load necessary packages - You may have to install some of the packages before loading.
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(plyr)
+```
+
+Read the data frame that will be used when performing the data wrangling techniques.
+```{r}
+df <- read.csv("Data_Retention.csv")
+```
+
+
+Determine the names of the variables in your data frame.
+
+```{r}
+names(df) 
+```
+
+Rationale for Removing Data;(Removing Specified Columns)
+
+Some Institutions in the state of Georgia do not have dormitories or on campus housing for students and do not have price data for those variables.  Two columns (variables) were removed based on the huge amount of missing data.  The two columns removed were Total price for in state students living on campus (Price_IO), and Total price for out of state students living on campus (Price_OO).   Sixty-five percent, i.e. 112/171, of the Institutions had missing data in these columns.  The institutions either do not have on campus housing or did not submit data for variables as it relates to Total price for on campus housing in the year 2017.
+
+
+Remove Variables(columns)
+
+```{r}
+df<-select(df, -c(Total.price.for.in.state.students.living.on.campus.2017.18..DRVIC2017.,Total.price.for.out.of.state.students.living.on.campus.2017.18..DRVIC2017.))
+
+```
+
+Determine the names of the variables in your data frame to ensure the correct columns were deleted.
+
+```{r}
+names(df) 
+```
+
+
+Rename Variables(columns)
+
+There was a need to change the names of the columns because the column names were too long for ease of use.  
+The column names for the variables were shortened for coding efficiency and accuracy in describing the data. 
+
+
+```{r}
+df<- rename(df, c("Total.women..EF2017..All.students..Undergraduate.total." = "Wom",
+"Total.men..EF2017..All.students..Undergraduate.total."= "Men", "Student.to.faculty.ratio..EF2017D." = "SF_Ratio", "Full.time.retention.rate..2017..EF2017D."="Reten", "Total.price.for.in.state.students.living.off.campus..not.with.family...2017.18..DRVIC2017."="Price_IF", "Total.price.for.out.of.state.students.living.off.campus..not.with.family...2017.18..DRVIC2017."="Price_OF", "Institution.Name"="Inst"))
+```
+
+
+
+Determine if the variables in df are correct after renaming.
+```{r}
+names(df) 
+```
+
+Removing Missing Data;(Removing rows that do not contain data for the selected variables)
+
+The variable we wish to predict is Retention Rate.   There were 26 Institutions which listed no data regarding Retention Rate.   The value of 26 was obtained in the following manner; there was 16 Institutions which provided no data for any of the 8 variables we are considering, and there were 10 Institutions which provided no data values for Retention in the year 2017. 
+
+Delete the schools that have NA for retention.  Several syntx operations were tried but failied, there has to be an easier way to perform this operation.
+```{r}
+df_clean <- df[-c(8,16,17,21,27,37,43,58,59,60,68,71,79,91,93,94,95,96,102,108,114,133,135,140,142,170),]
+```
+
+
+Create a csv file of the clean data frame.  The clean data frame is labelled as df_clean.
+We will then make a second level cleaning of the frame and label it as df_clean1.   The rationale for the second level of cleaning is the
+following.  Most Post Secondary Schools which list no price information in the list are not Academic Colleges or Universities but are professional schools such as Beauty Schools, etc. Since we are primary interested in understanding retention at Colleges and Universities, these schools were removed.   
+
+```{r}
+write.csv(df_clean, file = "df_clean.csv")
+
+```
+```{r}
+df_clean1 <- na.omit(df_clean)
+```
+
+Create a csv file of the clean data frame.  The clean data frame is labelled as df_clean.
+```{r}
+write.csv(df_clean1, file = "df_clean1.csv")
+
+```
+
+
